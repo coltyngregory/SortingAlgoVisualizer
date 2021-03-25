@@ -4,9 +4,9 @@
 }
 
 .array-bar {
-	width: 2px;
+	width: 10px;
 	background-color: red;
 	display: inline-block;
-	margin: 0 1px;
+	margin: 1px;
 }
 
