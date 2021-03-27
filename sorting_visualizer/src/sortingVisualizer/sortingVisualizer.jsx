@@ -18,7 +18,7 @@ export class SortingVisualizer extends React.Component {
 
 	resetArray() {
 		this.makeAllBarsRed();
-		
+
 		const array = [];
 		for (let i = 0; i < 99; i++) {
 			array.push(this.randomInt());
@@ -35,8 +35,10 @@ export class SortingVisualizer extends React.Component {
 		const array = this.state.array;
 		const animations = bubbleSortAnimations(array);
 		const bars = document.getElementsByClassName("array-bar");
+		// Make object for "for loop" efficiency: https://www.w3schools.com/js/js_performance.asp
+		const animationLen = animations.length 
 
-		for (let i = 0; i < animations.length; i++) {
+		for (let i = 0; i < animationLen; i++) {
 			setTimeout(() => {
 				var [oldPosition, newPosition] = animations[i];
 				var oldBarStyle = bars[oldPosition].style;
@@ -66,6 +68,7 @@ export class SortingVisualizer extends React.Component {
 	}
 
 	makeAllBarsGreen() {
+		setTimeout(() => {
 		console.log("Sorted");
 		const arrayBars = document.getElementsByClassName("array-bar");
 		var arrayLength = arrayBars.length;
@@ -74,6 +77,7 @@ export class SortingVisualizer extends React.Component {
 			var jBarStyle = arrayBars[j].style;
 			jBarStyle.backgroundColor = "limegreen";
 		}
+		}, 500);
 	}
 
 	makeAllBarsRed() {
