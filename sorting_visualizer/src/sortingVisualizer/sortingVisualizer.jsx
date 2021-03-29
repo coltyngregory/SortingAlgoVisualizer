@@ -1,5 +1,6 @@
 import React from 'react';
 import { bubbleSortAnimations } from './sortingAlgorithms.js';
+import { mergeSortAnimations } from './sortingAlgorithms.js';
 import './sortingVisualizer.css';
 
 const ANIMATIONS_SPEED_MS = 1;
@@ -9,6 +10,7 @@ export class SortingVisualizer extends React.Component {
 		super(props);
 		this.state = {
 			array: [],
+			enableButtons: true,
 		};
 	}
 
@@ -16,15 +18,17 @@ export class SortingVisualizer extends React.Component {
 		this.resetArray();
 	}
 
+	buttonToggle() {
+		this.setState({ enableButtons: !this.state.enableButtons });
+	}
+
 	resetArray() {
 		this.makeAllBarsRed();
-
 		const array = [];
-		for (let i = 0; i < 99; i++) {
+		for (let i = 0; i < 50; i++) {
 			array.push(this.randomInt());
 		}
 		this.setState({array});
-		console.log(this.state.array);
 	}
 
 	randomInt() {
@@ -32,11 +36,15 @@ export class SortingVisualizer extends React.Component {
 	}
 
 	bubbleSort() {
+		this.buttonToggle();
+		console.log("did it once");
 		const array = this.state.array;
 		const animations = bubbleSortAnimations(array);
+		console.log(animations);
 		const bars = document.getElementsByClassName("array-bar");
 		// Make object for "for loop" efficiency: https://www.w3schools.com/js/js_performance.asp
 		const animationLen = animations.length 
+		console.log(animationLen);
 
 		for (let i = 0; i < animationLen; i++) {
 			setTimeout(() => {
@@ -61,27 +69,29 @@ export class SortingVisualizer extends React.Component {
 				}
 				if (i === animations.length - 1) {
 					this.makeAllBarsGreen();
+					this.buttonToggle();
 				}
 
 			}, i * ANIMATIONS_SPEED_MS);
 		}
+		// this.buttonToggle(); it is because setTimeout() is async 
+		console.log("did it again");
 	}
 
+
 	makeAllBarsGreen() {
-		setTimeout(() => {
-		console.log("Sorted");
 		const arrayBars = document.getElementsByClassName("array-bar");
 		var arrayLength = arrayBars.length;
 
 		for (let j = 0; j < arrayLength; j++) {
-			var jBarStyle = arrayBars[j].style;
-			jBarStyle.backgroundColor = "limegreen";
+			setTimeout(() => {
+				var jBarStyle = arrayBars[j].style;
+				jBarStyle.backgroundColor = "limegreen";
+			}, j * 16);
 		}
-		}, 500);
 	}
 
 	makeAllBarsRed() {
-		console.log("Sorted");
 		const arrayBars = document.getElementsByClassName("array-bar");
 		var arrayLength = arrayBars.length;
 
@@ -104,12 +114,11 @@ export class SortingVisualizer extends React.Component {
 				</div>
 				))}
 			<br/>
-			<button onClick={() => this.resetArray()}>Generate New Array</button>
-			<button onClick={() => this.bubbleSort()}>Bubble Sort this whore</button>
+			<button disabled={!this.state.enableButtons} onClick={() => this.resetArray()}>Generate New Array</button>
+			<button disabled={!this.state.enableButtons} onClick={() => this.bubbleSort()}>Bubble Sort this whore</button>
 			</div>
 			);
 	}
-
 }
 
 export default SortingVisualizer;
