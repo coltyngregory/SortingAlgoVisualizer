@@ -1,9 +1,52 @@
-import React from 'react';
+import React, { useState, component } from 'react';
+import styled, { css } from 'styled-components';
+//import { Button } from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
 import { bubbleSortAnimations } from './sortingAlgorithms.js';
 import { mergeSortAnimations } from './sortingAlgorithms.js';
 import './sortingVisualizer.css';
 
 const ANIMATIONS_SPEED_MS = 1;
+
+// function AlertDismissible() {
+//   const [show, setShow] = useState(true);
+
+//   return (
+//     <div>
+//       <Alert show={show} variant="success">
+//         <Alert.Heading>How's it going?!</Alert.Heading>
+//         <p>
+//           Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget
+//           lacinia odio sem nec elit. Cras mattis consectetur purus sit amet
+//           fermentum.
+//         </p>
+//         <hr />
+//         <div className="d-flex justify-content-end">
+//           <Button onClick={() => setShow(false)} variant="outline-success">
+//             Close me y'all!
+//           </Button>
+//         </div>
+//       </Alert>
+
+//       {!show && <Button onClick={() => setShow(true)}>Show Alert</Button>}
+//     </div>
+//     );
+// }
+
+	const Button = styled.button`
+	background: transparent;
+	border-radius: 3px;
+	border: 6px solid red;
+	color: red;
+	margin: 0 1em;
+	padding: 0.25em 1em;
+	`
+
+	const ArrayContainer = styled.div`
+		position: right;
+		left: 1000px;
+	`
+
 
 export class SortingVisualizer extends React.Component {
 	constructor(props) {
@@ -23,6 +66,7 @@ export class SortingVisualizer extends React.Component {
 	}
 
 	resetArray() {
+
 		this.makeAllBarsRed();
 		const array = [];
 		for (let i = 0; i < 50; i++) {
@@ -37,14 +81,15 @@ export class SortingVisualizer extends React.Component {
 
 	bubbleSort() {
 		this.buttonToggle();
-		console.log("did it once");
 		const array = this.state.array;
 		const animations = bubbleSortAnimations(array);
-		console.log(animations);
 		const bars = document.getElementsByClassName("array-bar");
 		// Make object for "for loop" efficiency: https://www.w3schools.com/js/js_performance.asp
 		const animationLen = animations.length 
-		console.log(animationLen);
+
+		if (animations.length === 0) {
+			this.setState({ enableButtons: true });
+		}
 
 		for (let i = 0; i < animationLen; i++) {
 			setTimeout(() => {
@@ -53,6 +98,7 @@ export class SortingVisualizer extends React.Component {
 				var newBarStyle = bars[newPosition].style;
 
 				var temp = this.state.array[oldPosition];
+				// https://stackoverflow.com/questions/29537299/react-how-to-update-state-item1-in-state-using-setstate
 				this.state.array[oldPosition] = this.state.array[newPosition];
 				this.state.array[newPosition] = temp;
 
@@ -68,14 +114,12 @@ export class SortingVisualizer extends React.Component {
 					jbar.backgroundColor = "blue";
 				}
 				if (i === animations.length - 1) {
-					this.makeAllBarsGreen();
 					this.buttonToggle();
+					this.makeAllBarsGreen();
 				}
 
 			}, i * ANIMATIONS_SPEED_MS);
 		}
-		// this.buttonToggle(); it is because setTimeout() is async 
-		console.log("did it again");
 	}
 
 
@@ -103,9 +147,11 @@ export class SortingVisualizer extends React.Component {
 
 	render() {
 		const {array} = this.state;
+		console.log("rendered");
+
 
 		return(
-			<div className="array-container">
+			<ArrayContainer>
 			{array.map((value, idx) => (
 				<div
 				className="array-bar"
@@ -114,11 +160,54 @@ export class SortingVisualizer extends React.Component {
 				</div>
 				))}
 			<br/>
-			<button disabled={!this.state.enableButtons} onClick={() => this.resetArray()}>Generate New Array</button>
-			<button disabled={!this.state.enableButtons} onClick={() => this.bubbleSort()}>Bubble Sort this whore</button>
-			</div>
+			<Button disabled={!this.enableButtons} onClick={() => this.resetArray()}>Generate New Array</Button>
+			<Button disabled={this.enableButtons} onClick={() => this.bubbleSort()}>Bubble Sort</Button>
+			</ArrayContainer>
 			);
 	}
 }
 
 export default SortingVisualizer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
