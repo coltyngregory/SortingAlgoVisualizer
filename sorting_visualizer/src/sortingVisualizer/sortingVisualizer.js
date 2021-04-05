@@ -1,7 +1,8 @@
 import React, { useState, component } from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 //import { Button } from 'react-bootstrap';
-import Alert from 'react-bootstrap/Alert';
+import { Container, Row, Col, Alert } from 'react-bootstrap';
+//import { GenerateButton } from '../components/Button.style.js'
 import { bubbleSortAnimations } from './sortingAlgorithms.js';
 import { mergeSortAnimations } from './sortingAlgorithms.js';
 import './sortingVisualizer.css';
@@ -32,20 +33,79 @@ const ANIMATIONS_SPEED_MS = 1;
 //     </div>
 //     );
 // }
-
-	const Button = styled.button`
-	background: transparent;
-	border-radius: 3px;
-	border: 6px solid red;
-	color: red;
-	margin: 0 1em;
+	const GenerateButton = styled.button`
+	font-size: 2em;
 	padding: 0.25em 1em;
-	`
+	border: 2px solid blue;
+	background-color: ${(props) => props.backgroundColour ? props.backgroundColour : "blue" };
 
-	const ArrayContainer = styled.div`
-		position: right;
-		left: 1000px;
-	`
+	&:hover {
+		background-color: green;
+	}
+`;
+
+
+	const Visualizer = styled.div`
+		display: inline;
+		border: 20px solid black;
+		border-radius: 50px;
+	`;
+
+	const ColDiv = styled.div`
+		padding: 10px;
+	`;
+
+	const PageContainer = styled.div`
+		text-align: center;
+	`;
+
+
+
+	const sideToSideSlide = keyframes`
+		0%{
+			background: aqua;
+			box-shadow: 0 0 10px aqua;
+			width: 10px;
+			left: 0;
+		}
+		25%{
+			background: aqua;
+			box-shadow: 0 0 10px aqua;
+			width: 100px;
+			left: 0;
+		}
+		50%{
+			background: greenyellow;
+			box-shadow: 0 0 10px greenyellow;
+			width: 10px;
+			left: 90px;
+		}
+		75%{
+			background: greenyellow;
+			box-shadow: 0 0 10px greenyellow;
+			width: 100px;
+			left: 0px;			
+		}
+		100%{
+			background: aqua;
+			box-shadow: 0 0 10px aqua;
+			width: 10px;
+			left: 0px;
+		}
+	`;
+
+	const LoadingSlider = styled.div`
+		position: sticky;
+		diplay: center;
+		margin-top: 20px;
+		margin-botton: 10px;
+		height: 10px;
+		width: 10px;
+		border-radius: 5px;
+		background: aqua;
+		box-shadow: 0 0 10px aqua;
+		animation: ${sideToSideSlide} 2s ease infinite;
+	`;
 
 
 export class SortingVisualizer extends React.Component {
@@ -53,12 +113,26 @@ export class SortingVisualizer extends React.Component {
 		super(props);
 		this.state = {
 			array: [],
-			enableButtons: true,
+			enableButtons: false,
+			fireOn: true,
+			sortingAlgo: ['Bubble Sort', 'Merge Sort', 'Selection Sort'],
+			countIdx: 0,
+
 		};
 	}
 
 	componentDidMount() {
-		this.resetArray();
+		if (this.enableButtons) {
+			this.resetArray();
+		}
+	}
+
+	componentDidUpdate() {
+		setTimeout(() => {
+			if (this.state.fireOn) { 
+				this.resetArray()  
+			} 
+		}, 150)
 	}
 
 	buttonToggle() {
@@ -69,6 +143,7 @@ export class SortingVisualizer extends React.Component {
 
 		this.makeAllBarsRed();
 		const array = [];
+
 		for (let i = 0; i < 50; i++) {
 			array.push(this.randomInt());
 		}
@@ -80,6 +155,7 @@ export class SortingVisualizer extends React.Component {
 	}
 
 	bubbleSort() {
+		this.setState({ fireOn: false })
 		this.buttonToggle();
 		const array = this.state.array;
 		const animations = bubbleSortAnimations(array);
@@ -122,6 +198,32 @@ export class SortingVisualizer extends React.Component {
 		}
 	}
 
+	decideAlgorithm() {
+		const array = this.state.sortingAlgo;
+		const idx = this.state.countIdx;
+
+		if (array[idx] == 'Bubble Sort') {
+			console.log("bubble");
+			this.bubbleSort();
+		}
+
+		if (array[idx] == 'Merge Sort') {
+			console.log("Merge Sort");
+		}
+
+		if (array[idx] == 'Selection Sort') {
+			console.log("Selection Sort");
+		}
+	}
+
+	increment() {
+		this.setState({ countIdx: this.state.countIdx + 1 });
+	}
+
+	decrement() {
+		this.setState({ countIdx: this.state.countIdx - 1 });
+	}
+
 
 	makeAllBarsGreen() {
 		const arrayBars = document.getElementsByClassName("array-bar");
@@ -145,31 +247,53 @@ export class SortingVisualizer extends React.Component {
 		}
 	}
 
+	mymethod(e) {
+		alert(e);
+	}
+
 	render() {
+		const test = false;
 		const {array} = this.state;
 		console.log("rendered");
 
 
 		return(
-			<ArrayContainer>
-			{array.map((value, idx) => (
-				<div
-				className="array-bar"
-				key={idx}
-				style={{height: `${value}px`}}>
-				</div>
-				))}
-			<br/>
-			<Button disabled={!this.enableButtons} onClick={() => this.resetArray()}>Generate New Array</Button>
-			<Button disabled={this.enableButtons} onClick={() => this.bubbleSort()}>Bubble Sort</Button>
-			</ArrayContainer>
+			<PageContainer >
+			<LoadingSlider />
+				<Container fluid='lg'>
+					<Row >
+							<Col lg={true}>
+								<GenerateButton disabled={test} backgroundColour="red" onClick={(() => this.setState({ fireOn: true }))}>Spark a fire</GenerateButton >
+							
+							</Col >
+							<Col >
+								<GenerateButton disabled={this.state.countIdx == 0} backgroundColour='yellow' onClick={(() => this.decrement())}>/* == */</GenerateButton >
+								<GenerateButton onClick={(() => this.decideAlgorithm())}>{ this.state.sortingAlgo[this.state.countIdx] }</GenerateButton >
+								<GenerateButton disabled={this.state.countIdx == 2} backgroundColour='teal' onClick={(() => this.increment())}>/* ==> */</GenerateButton >
+							</Col >
+					</Row >
+					<Row >
+						<Col lg={true}>
+							<Visualizer >
+								{array.map((value, idx) => (
+								<div
+								className="array-bar"
+								key={idx}
+								style={{height: `${value}px`}}>
+								</div>
+								))}
+							</Visualizer > 
+							<LoadingSlider />
+						</Col >
+					</Row >	
+				</Container >
+				<LoadingSlider />
+			</PageContainer >
 			);
 	}
 }
 
 export default SortingVisualizer;
-
-
 
 
 

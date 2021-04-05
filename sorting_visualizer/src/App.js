@@ -1,11 +1,9 @@
 import './App.css';
-import SortingVisualizer from './sortingVisualizer/sortingVisualizer.jsx';
+import SortingVisualizer from './sortingVisualizer/sortingVisualizer.js';
 
 function App() {
   return (
-    <div className="App">
-      <SortingVisualizer></SortingVisualizer>
-    </div>
+    	<SortingVisualizer></SortingVisualizer>
   );
 }
 
