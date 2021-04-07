@@ -3,7 +3,7 @@ import SortingVisualizer from './sortingVisualizer/sortingVisualizer.js';
 
 function App() {
   return (
-    	<SortingVisualizer></SortingVisualizer>
+    <SortingVisualizer></SortingVisualizer>
   );
 }
 
