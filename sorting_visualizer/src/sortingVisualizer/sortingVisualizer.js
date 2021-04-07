@@ -19,17 +19,17 @@ class SortingVisualizer extends React.Component {
         const arrayBars = document.getElementsByClassName("array-bar");
 
         for (let i = 0; i < this.state.fireSize; i++) {
-            array.push(Math.floor((Math.random() * this.state.fireSize * 3) + 1));
+            array.push(Math.floor((Math.random() * this.state.fireSize * 5) + 1));
         }
         this.setState({ array });
         var arrayLength = arrayBars.length;
+        
     }
 
     randomFireColour() {
         let randomIndex = (Math.floor((Math.random() * 5)));
         let colors = ["red", "orange", "orange", "orange", "yellow"];
         return colors[randomIndex];
-
     }
 
     previousAlgo() {
@@ -53,13 +53,24 @@ class SortingVisualizer extends React.Component {
     }
 
     handleFire() {
-        if (this.state.sparkAFireButton === "Spark A Fire") {
-            this.resetArray();
+
+        if (this.state.sparkAFireButton === "Add A Log") {
+            this.setState({ fireSize: this.state.fireSize + 10})
+            
+        }else {
+            this.setState({ sparkAFireButton: "Add A Log" });
+            this.keepFireGoing();
+            
         }
-        this.setState({ sparkAFireButton: "Add A Log" });
-        this.setState({ fireSize: this.state.fireSize + 10})
-        this.resetArray();
-        
+    }
+
+    keepFireGoing() {
+        console.log("In keepFireGoing");
+        for (let i=0; i < 10000; i++) {
+            setTimeout(() => {
+                this.resetArray();
+            }, i * 200);
+        }
     }
 
     startSort() {
@@ -90,6 +101,8 @@ class SortingVisualizer extends React.Component {
         console.log("in heapsort");
     }
 
+
+
     render() {
         return (
             <Container>
@@ -97,7 +110,7 @@ class SortingVisualizer extends React.Component {
                     <Col sm={4} className="control-container">
                         <h3>Control Panel</h3>
                         <p className="buttons"></p>
-                        <Button disabled={this.state.fireSize > 70} variant="danger" onClick={() => this.handleFire()}>{this.state.sparkAFireButton}</Button>
+                        <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFire()}>{this.state.sparkAFireButton}</Button>
                         <p className="buttons"></p>
                         <Button className="algoButton" variant="success" onClick={() => this.previousAlgo()}>🢀</Button><Button onClick={() => this.startSort()} variant="primary">{this.state.sortingAlgos[this.state.sortingAlgoIdx]}</Button><Button className="algoButton" variant="success" onClick={() => this.nextAlgo()}>🢂</Button>
                     </Col>
