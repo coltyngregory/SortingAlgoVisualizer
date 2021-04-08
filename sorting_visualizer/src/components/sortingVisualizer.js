@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Col, Row, Button } from 'react-bootstrap';
+import FireAudio from './fireAudio.js';
 
 
 class SortingVisualizer extends React.Component {
@@ -54,6 +55,8 @@ class SortingVisualizer extends React.Component {
 
     handleFire() {
 
+        this.playAudio();
+
         if (this.state.sparkAFireButton === "Add A Log") {
             this.setState({ fireSize: this.state.fireSize + 10})
             
@@ -101,7 +104,15 @@ class SortingVisualizer extends React.Component {
         console.log("in heapsort");
     }
 
+    playAudio() {
+        let x = document.getElementById("audio");
+        x.play();
+    }
 
+    pauseAudio() {
+        let x = document.getElementById("audio");
+        x.pause();
+    }
 
     render() {
         return (
@@ -109,6 +120,7 @@ class SortingVisualizer extends React.Component {
                 <Row noGutters={true}>
                     <Col sm={4} className="control-container">
                         <h3>Control Panel</h3>
+                        <FireAudio />
                         <p className="buttons"></p>
                         <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFire()}>{this.state.sparkAFireButton}</Button>
                         <p className="buttons"></p>
