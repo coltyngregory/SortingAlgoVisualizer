@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Col, Row, Button } from 'react-bootstrap';
 import FireAudio from './fireAudio.js';
+import FireVisual from './fireVisual.js';
 
 
 class SortingVisualizer extends React.Component {
@@ -25,12 +26,6 @@ class SortingVisualizer extends React.Component {
         this.setState({ array });
         var arrayLength = arrayBars.length;
         
-    }
-
-    randomFireColour() {
-        let randomIndex = (Math.floor((Math.random() * 5)));
-        let colors = ["red", "orange", "orange", "orange", "yellow"];
-        return colors[randomIndex];
     }
 
     previousAlgo() {
@@ -76,6 +71,16 @@ class SortingVisualizer extends React.Component {
         }
     }
 
+    playAudio() {
+        let x = document.getElementById("audio");
+        x.play();
+    }
+
+    pauseAudio() {
+        let x = document.getElementById("audio");
+        x.pause();
+    }
+
     startSort() {
         let algorithm = this.state.sortingAlgos[this.state.sortingAlgoIdx];
 
@@ -104,15 +109,6 @@ class SortingVisualizer extends React.Component {
         console.log("in heapsort");
     }
 
-    playAudio() {
-        let x = document.getElementById("audio");
-        x.play();
-    }
-
-    pauseAudio() {
-        let x = document.getElementById("audio");
-        x.pause();
-    }
 
     render() {
         return (
@@ -129,15 +125,8 @@ class SortingVisualizer extends React.Component {
                     <Col>
                         <div>
                             <div sm={8} className="array-container">
-                                <div className="flames">
-                                    {this.state.array.map((value, idx) => (
-                                    <div
-                                        className="array-bar"
-                                        key={idx}
-                                        style={{height: `${value}px`, backgroundColor: this.randomFireColour()}}>
-                                    </div>
-                                    ))}
-                                </div>
+                                <FireVisual array={this.state.array}
+                                />
                             </div>
                         </div>
                     </Col>

@@ -3,16 +3,6 @@ import React from 'react';
 
 class FireAudio extends React.Component {
 
-	playAudio() {
-        let x = document.getElementById("audio");
-        x.play();
-    }
-
-    pauseAudio() {
-        let x = document.getElementById("audio");
-        x.pause();
-    }
-
 	render() {
 		return (
 			<div>
