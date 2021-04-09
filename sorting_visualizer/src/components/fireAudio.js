@@ -2,7 +2,9 @@ import React from 'react';
 
 
 class FireAudio extends React.Component {
-
+	constructor(props) {
+		super(props)
+	}
 	render() {
 		return (
 			<div>

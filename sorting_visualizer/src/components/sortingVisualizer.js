@@ -1,7 +1,5 @@
 import React from 'react';
 import { Container, Col, Row, Button } from 'react-bootstrap';
-import FireAudio from './fireAudio.js';
-import FireVisual from './fireVisual.js';
 
 
 class SortingVisualizer extends React.Component {
@@ -29,7 +27,7 @@ class SortingVisualizer extends React.Component {
     }
 
     previousAlgo() {
-        const idx = this.state.sortingAlgoIdx;
+        let idx = this.state.sortingAlgoIdx;
 
         if (idx === 0) {
             this.setState({ sortingAlgoIdx: 2 });
@@ -48,7 +46,7 @@ class SortingVisualizer extends React.Component {
         };
     }
 
-    handleFire() {
+    handleFireButtons() {
 
         this.playAudio();
 
@@ -60,6 +58,12 @@ class SortingVisualizer extends React.Component {
             this.keepFireGoing();
             
         }
+    }
+
+    randomFireColour() {
+        let randomIndex = (Math.floor((Math.random() * 5)));
+        let colors = ["red", "orange", "orange", "orange", "yellow"];
+        return colors[randomIndex];
     }
 
     keepFireGoing() {
@@ -109,6 +113,9 @@ class SortingVisualizer extends React.Component {
         console.log("in heapsort");
     }
 
+    testfunc() {
+        console.log('in testfunc');
+    }
 
     render() {
         return (
@@ -116,17 +123,25 @@ class SortingVisualizer extends React.Component {
                 <Row noGutters={true}>
                     <Col sm={4} className="control-container">
                         <h3>Control Panel</h3>
-                        <FireAudio />
+                        <audio loop="loop" id="audio" src="fire.mp3" type="audio/mpeg" />
                         <p className="buttons"></p>
-                        <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFire()}>{this.state.sparkAFireButton}</Button>
+                        <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFireButtons()}>{this.state.sparkAFireButton}</Button>
                         <p className="buttons"></p>
                         <Button className="algoButton" variant="success" onClick={() => this.previousAlgo()}>🢀</Button><Button onClick={() => this.startSort()} variant="primary">{this.state.sortingAlgos[this.state.sortingAlgoIdx]}</Button><Button className="algoButton" variant="success" onClick={() => this.nextAlgo()}>🢂</Button>
+                        <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFire()}>{this.state.sparkAFireButton}</Button>
                     </Col>
                     <Col>
                         <div>
                             <div sm={8} className="array-container">
-                                <FireVisual array={this.state.array}
-                                />
+                                <div className="flames">
+                                    {this.state.array.map((value, idx) => (
+                                    <div
+                                        className="array-bar"
+                                        key={idx}
+                                        style={{height: `${value}px`, backgroundColor: this.randomFireColour()}}>
+                                    </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </Col>
