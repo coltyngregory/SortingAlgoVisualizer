@@ -1,6 +1,18 @@
 import React from 'react';
 import { Container, Col, Row, Button } from 'react-bootstrap';
+import { getMergeSortAnimations } from '../sortingAlgorithms.js';
 
+// Change this value for the speed of the animations.
+const ANIMATION_SPEED_MS = 500;
+
+// Change this value for the number of bars (value) in the array.
+const NUMBER_OF_ARRAY_BARS = 310;
+
+// This is the main color of the array bars.
+const PRIMARY_COLOR = 'turquoise';
+
+// This is the color of array bars that are being compared throughout the animations.
+const SECONDARY_COLOR = 'red';
 
 class SortingVisualizer extends React.Component {
     constructor(props) {
@@ -11,6 +23,7 @@ class SortingVisualizer extends React.Component {
             sortingAlgoIdx: 0,
             sparkAFireButton: "Spark A Fire",
             fireSize: 10,
+            isFireAlive: false,
         };
     }
 
@@ -49,9 +62,20 @@ class SortingVisualizer extends React.Component {
     handleFireButtons() {
 
         this.playAudio();
+        console.log(this.state.isFireAlive);
+        this.setState(
+            { 
+                isFireAlive: true 
+            }, 
+            () => {
+                console.log(this.state.isFireAlive);
+            }
+        );
+        console.log(this.state.isFireAlive);
 
         if (this.state.sparkAFireButton === "Add A Log") {
-            this.setState({ fireSize: this.state.fireSize + 10})
+            this.setState({ fireSize: this.state.fireSize + 10});
+            this.keepFireGoing();
             
         }else {
             this.setState({ sparkAFireButton: "Add A Log" });
@@ -67,11 +91,15 @@ class SortingVisualizer extends React.Component {
     }
 
     keepFireGoing() {
-        console.log("In keepFireGoing");
-        for (let i=0; i < 10000; i++) {
-            setTimeout(() => {
-                this.resetArray();
-            }, i * 200);
+
+        console.log(this.state.isFireAlive);
+
+        if (this.state.isFireAlive) {
+            this.resetArray();
+            setTimeout(() => { this.keepFireGoing() }, 1000);
+        }else {
+            console.log("Fire has stopped for sorting algorithm");
+            console.log(this.state.isFireAlive);
         }
     }
 
@@ -93,7 +121,7 @@ class SortingVisualizer extends React.Component {
         }
 
         if (algorithm === "Merge Sort") {
-            this.MergeSort();
+            this.mergeSort();
         }
 
         if (algorithm === "Heap Sort") {
@@ -105,8 +133,29 @@ class SortingVisualizer extends React.Component {
         console.log("in bubblesort");
     }
 
-    MergeSort() {
-        console.log("in mergesort");
+    mergeSort() {
+        this.state.isFireAlive = false;
+        const animations = getMergeSortAnimations(this.state.array);
+        for (let i = 0; i < animations.length; i++) {
+            const arrayBars = document.getElementsByClassName('array-bar');
+            const isColorChange = i % 3 !== 2;
+            if (isColorChange) {
+                const [barOneIdx, barTwoIdx] = animations[i];
+                const barOneStyle = arrayBars[barOneIdx].style;
+                const barTwoStyle = arrayBars[barTwoIdx].style;
+                const color = i % 3 === 0 ? SECONDARY_COLOR : PRIMARY_COLOR;
+                setTimeout(() => {
+                barOneStyle.backgroundColor = color;
+                barTwoStyle.backgroundColor = color;
+                }, i * ANIMATION_SPEED_MS);
+            } else {
+                setTimeout(() => {
+                const [barOneIdx, newHeight] = animations[i];
+                const barOneStyle = arrayBars[barOneIdx].style;
+                barOneStyle.height = `${newHeight}px`;
+                }, i * ANIMATION_SPEED_MS);
+            }
+        }
     }
 
     HeapSort() {
@@ -117,6 +166,18 @@ class SortingVisualizer extends React.Component {
         console.log('in testfunc');
     }
 
+    test() {
+        console.log("In test");
+        console.log(this.state.fireSize);
+        this.setState({ fireSize: 100 }, () => { this.testTwo() });
+        console.log("testOne " + this.state.fireSize);
+    }
+
+    testTwo() {
+        console.log("testTwo " + this.state.fireSize);
+        console.log(this.state.fireSize + 69);
+    }
+
     render() {
         return (
             <Container>
@@ -125,10 +186,10 @@ class SortingVisualizer extends React.Component {
                         <h3>Control Panel</h3>
                         <audio loop="loop" id="audio" src="fire.mp3" type="audio/mpeg" />
                         <p className="buttons"></p>
+                        <Button onClick={() => this.test()}>Try</Button>
                         <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFireButtons()}>{this.state.sparkAFireButton}</Button>
                         <p className="buttons"></p>
                         <Button className="algoButton" variant="success" onClick={() => this.previousAlgo()}>🢀</Button><Button onClick={() => this.startSort()} variant="primary">{this.state.sortingAlgos[this.state.sortingAlgoIdx]}</Button><Button className="algoButton" variant="success" onClick={() => this.nextAlgo()}>🢂</Button>
-                        <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFire()}>{this.state.sparkAFireButton}</Button>
                     </Col>
                     <Col>
                         <div>
@@ -152,41 +213,3 @@ class SortingVisualizer extends React.Component {
 }
 
 export default SortingVisualizer;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
