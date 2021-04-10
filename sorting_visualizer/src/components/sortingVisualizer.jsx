@@ -1,6 +1,8 @@
 import React from 'react';
 import { Container, Col, Row, Button } from 'react-bootstrap';
-import { getBubbleSortAnimations, getMergeSortAnimations } from '../sortingAlgorithms.js';
+import { getBubbleSortAnimations } from '../SortingAlgorithms/BubbleSort.js';
+import { getMergeSortAnimations } from '../SortingAlgorithms/MergeSort.js';
+import { getSelectionSortAnimations } from '../SortingAlgorithms/SelectionSort.js';
 
 // Change this value for the speed of the animations.
 const ANIMATION_SPEED_MS = 50;
@@ -18,12 +20,13 @@ class SortingVisualizer extends React.Component {
         super(props);
         this.state = { 
             array: [],
-            sortingAlgos: ["Bubble Sort", "Merge Sort", "Heap Sort"],
+            sortingAlgos: ["Bubble Sort", "Merge Sort", "Selection Sort"],
             sortingAlgoIdx: 0,
             sparkAFireButton: "Spark A Fire",
             fireSize: 10,
             isFireAlive: false,
             constantFire: true,
+            sortButton: true,
         };
     }
 
@@ -35,8 +38,12 @@ class SortingVisualizer extends React.Component {
             array.push(Math.floor((Math.random() * this.state.fireSize * 5) + 1));
         }
         this.setState({ array });
-        var arrayLength = arrayBars.length;
-        
+    }
+
+    clearArray() {
+        const array = [];
+        const arrayBars = document.getElementsByClassName("array-bar");
+
     }
 
     previousAlgo() {
@@ -99,6 +106,7 @@ class SortingVisualizer extends React.Component {
 
     stopFlamesMoving() {
         clearTimeout(fireOn);
+        this.setState({ sortButton: false });
     }
 
     setTimeoutForKeepFireGoing() {
@@ -128,16 +136,17 @@ class SortingVisualizer extends React.Component {
         this.stopFlamesMoving();
 
         if (algorithm === "Bubble Sort") {
-            this.BubbleSort();
+            this.bubbleSort();
         }
 
         if (algorithm === "Merge Sort") {
             this.mergeSort();
         }
 
-        if (algorithm === "Heap Sort") {
-            this.HeapSort();
+        if (algorithm === "Selection Sort") {
+            this.selectionSort();
         }
+    //     setTimeout(() => )
     }
 
     randomFireColour() {
@@ -146,36 +155,85 @@ class SortingVisualizer extends React.Component {
         return colors[randomIndex];
     }
 
-    BubbleSort() {
-        console.log("in bubblesort");
-    }
-
-    mergeSort() {
-        const animations = getMergeSortAnimations(this.state.array);
+    bubbleSort() {
+        const [animations,sortArray] = getBubbleSortAnimations(this.state.array);
         for (let i = 0; i < animations.length; i++) {
+            const isColorChange = animations[i][0] == "comparision1" || animations[i][0] == "comparision2";
             const arrayBars = document.getElementsByClassName('array-bar');
-            const isColorChange = i % 3 !== 2;
-            if (isColorChange) {
-                const [barOneIdx, barTwoIdx] = animations[i];
-                const barOneStyle = arrayBars[barOneIdx].style;
-                const barTwoStyle = arrayBars[barTwoIdx].style;
-                const color = i % 3 === 0 ? SECONDARY_COLOR : PRIMARY_COLOR;
+            if(isColorChange === true) {
+                const color = (animations[i][0] == "comparision1") ? SECONDARY_COLOR : PRIMARY_COLOR;
+                const [comparision, barOneIndex, barTwoIndex] = animations[i];
+                const barOneStyle = arrayBars[barOneIndex].style;
+                const barTwoStyle = arrayBars[barTwoIndex].style;
                 setTimeout(() => {
-                barOneStyle.backgroundColor = color;
-                barTwoStyle.backgroundColor = color;
-                }, i * ANIMATION_SPEED_MS);
-            } else {
+                    barOneStyle.backgroundColor = color;
+                    barTwoStyle.backgroundColor = color;
+                },i * ANIMATION_SPEED_MS);
+            }
+            else {
+                const [swap, barIndex, newHeight] = animations[i];
+                if (barIndex === -1) {
+                    continue;
+                }
+                const barStyle = arrayBars[barIndex].style;
                 setTimeout(() => {
-                const [barOneIdx, newHeight] = animations[i];
-                const barOneStyle = arrayBars[barOneIdx].style;
-                barOneStyle.height = `${newHeight}px`;
-                }, i * ANIMATION_SPEED_MS);
+                    barStyle.height = `${newHeight}px`;
+                },i * ANIMATION_SPEED_MS);  
             }
         }
     }
 
-    HeapSort() {
-        console.log("in heapsort");
+    mergeSort() {
+        const [animations,sortArray] = getMergeSortAnimations(this.state.array);
+        console.log(animations);
+        for (let i = 0; i < animations.length; i++) {
+            const isColorChange = animations[i][0] == "comparision1" || animations[i][0] == "comparision2";
+            const arrayBars = document.getElementsByClassName('array-bar');
+            if(isColorChange === true) {
+                const [comparision, barOneIndex, barTwoIndex] = animations[i];
+                const color = (animations[i][0] == "comparision1") ? SECONDARY_COLOR : PRIMARY_COLOR;
+                const barOneStyle = arrayBars[barOneIndex].style;
+                const barTwoStyle = arrayBars[barTwoIndex].style;
+                //If we don't multiply by the index then every animations[i] wait for exactly ANIMATION_SPEED_MS and immediately change into final state
+                setTimeout(() => {
+                    barOneStyle.backgroundColor = color;
+                    barTwoStyle.backgroundColor = color;
+                },i * ANIMATION_SPEED_MS);
+                
+            }
+            else {
+                setTimeout(() => {
+                    const [overwrite, barOneIdx, newHeight] = animations[i];
+                    const barOneStyle = arrayBars[barOneIdx].style;
+                    barOneStyle.height = `${newHeight}px`;
+                  },i * ANIMATION_SPEED_MS);
+            }
+        }
+    }
+
+    selectionSort() {
+        const [animations,sortArray] = getSelectionSortAnimations(this.state.array);
+        for (let i = 0; i < animations.length; i++) {
+            const isColorChange = (animations[i][0] === "comparision1") || (animations[i][0] === "comparision2");
+            const arrayBars = document.getElementsByClassName('array-bar');
+            if(isColorChange === true) {
+                const color = (animations[i][0] === "comparision1") ? SECONDARY_COLOR : PRIMARY_COLOR;
+                const [temp, barOneIndex, barTwoIndex] = animations[i];
+                const barOneStyle = arrayBars[barOneIndex].style;
+                const barTwoStyle = arrayBars[barTwoIndex].style;
+                setTimeout(() => {
+                    barOneStyle.backgroundColor = color;
+                    barTwoStyle.backgroundColor = color;
+                },i * ANIMATION_SPEED_MS);
+            }
+            else {
+                const [temp, barIndex, newHeight] = animations[i];
+                const barStyle = arrayBars[barIndex].style;
+                setTimeout(() => {
+                    barStyle.height = `${newHeight}px`;
+                },i * ANIMATION_SPEED_MS);  
+            }
+        }
     }
 
     render() {
@@ -188,7 +246,7 @@ class SortingVisualizer extends React.Component {
                         <p className="buttons"></p>
                         <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFireButtonState()}>{this.state.sparkAFireButton}</Button>
                         <p className="buttons"></p>
-                        <Button className="algoButton" variant="success" onClick={() => this.previousAlgo()}>🢀</Button><Button onClick={() => this.startSort()} variant="primary">{this.state.sortingAlgos[this.state.sortingAlgoIdx]}</Button><Button className="algoButton" variant="success" onClick={() => this.nextAlgo()}>🢂</Button>
+                        <Button disabled={!this.state.sortButton} className="algoButton" variant="success" onClick={() => this.previousAlgo()}>🢀</Button><Button disabled={!this.state.sortButton} onClick={() => this.startSort()} variant="primary">{this.state.sortingAlgos[this.state.sortingAlgoIdx]}</Button><Button disabled={!this.state.sortButton} className="algoButton" variant="success" onClick={() => this.nextAlgo()}>🢂</Button>
                     </Col>
                     <Col>
                         <div>

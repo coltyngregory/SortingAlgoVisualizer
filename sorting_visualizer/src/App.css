@@ -36,8 +36,8 @@
 }
 
 .algoButton:hover {
-  background-color: purple;
-  color: red;
+  background-color: red;
+  color: black;
 }
 
 .buttons {
