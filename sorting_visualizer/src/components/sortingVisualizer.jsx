@@ -1,18 +1,17 @@
 import React from 'react';
 import { Container, Col, Row, Button } from 'react-bootstrap';
-import { getMergeSortAnimations } from '../sortingAlgorithms.js';
+import { getBubbleSortAnimations, getMergeSortAnimations } from '../sortingAlgorithms.js';
 
 // Change this value for the speed of the animations.
-const ANIMATION_SPEED_MS = 500;
-
-// Change this value for the number of bars (value) in the array.
-const NUMBER_OF_ARRAY_BARS = 310;
+const ANIMATION_SPEED_MS = 50;
 
 // This is the main color of the array bars.
-const PRIMARY_COLOR = 'turquoise';
+const PRIMARY_COLOR = 'black';
 
 // This is the color of array bars that are being compared throughout the animations.
 const SECONDARY_COLOR = 'red';
+
+var fireOn;
 
 class SortingVisualizer extends React.Component {
     constructor(props) {
@@ -24,6 +23,7 @@ class SortingVisualizer extends React.Component {
             sparkAFireButton: "Spark A Fire",
             fireSize: 10,
             isFireAlive: false,
+            constantFire: true,
         };
     }
 
@@ -59,48 +59,56 @@ class SortingVisualizer extends React.Component {
         };
     }
 
-    handleFireButtons() {
+    handleFireButtonState() {
+        if (!this.state.isFireAlive) {
+            this.playAudio();
+            this.makeFlamesMove();
+        }
+        this.setState({ isFireAlive: true }, () => {this.handleFireSize()});
+    }  
+
+    handleFireSize() {
+        if (this.state.sparkAFireButton === "Add A Log") {
+            this.setState({ fireSize: this.state.fireSize + 10});
+        }else {
+            this.setState({ sparkAFireButton: "Add A Log" });
+        }
+    }
+
+    handleFireButton() {
 
         this.playAudio();
-        console.log(this.state.isFireAlive);
-        this.setState(
-            { 
-                isFireAlive: true 
-            }, 
-            () => {
-                console.log(this.state.isFireAlive);
-            }
-        );
-        console.log(this.state.isFireAlive);
 
         if (this.state.sparkAFireButton === "Add A Log") {
             this.setState({ fireSize: this.state.fireSize + 10});
-            this.keepFireGoing();
             
         }else {
-            this.setState({ sparkAFireButton: "Add A Log" });
-            this.keepFireGoing();
+            this.setState({ sparkAFireButton: "Add A Log" }, () => { this.keepFireGoing() });
             
         }
     }
 
-    randomFireColour() {
-        let randomIndex = (Math.floor((Math.random() * 5)));
-        let colors = ["red", "orange", "orange", "orange", "yellow"];
-        return colors[randomIndex];
+    makeFlamesMoveHelper() {
+        fireOn = setTimeout(() => { this.makeFlamesMove() }, 200);
     }
 
-    keepFireGoing() {
+    makeFlamesMove() {
+        this.resetArray();
+        this.makeFlamesMoveHelper();
+    }
 
-        console.log(this.state.isFireAlive);
+    stopFlamesMoving() {
+        clearTimeout(fireOn);
+    }
 
-        if (this.state.isFireAlive) {
-            this.resetArray();
-            setTimeout(() => { this.keepFireGoing() }, 1000);
-        }else {
-            console.log("Fire has stopped for sorting algorithm");
-            console.log(this.state.isFireAlive);
-        }
+    setTimeoutForKeepFireGoing() {
+
+        fireOn = setTimeout(() => { this.keepFireGoing() }, 5000);
+        this.keepFireGoing();
+    }
+
+    stopKeepFireGoingSetTimeout() {
+        clearTimeout(fireOn);
     }
 
     playAudio() {
@@ -116,6 +124,9 @@ class SortingVisualizer extends React.Component {
     startSort() {
         let algorithm = this.state.sortingAlgos[this.state.sortingAlgoIdx];
 
+        this.pauseAudio();
+        this.stopFlamesMoving();
+
         if (algorithm === "Bubble Sort") {
             this.BubbleSort();
         }
@@ -129,12 +140,17 @@ class SortingVisualizer extends React.Component {
         }
     }
 
+    randomFireColour() {
+        let randomIndex = (Math.floor((Math.random() * 5)));
+        let colors = ["red", "orange", "orange", "orange", "yellow"];
+        return colors[randomIndex];
+    }
+
     BubbleSort() {
         console.log("in bubblesort");
     }
 
     mergeSort() {
-        this.state.isFireAlive = false;
         const animations = getMergeSortAnimations(this.state.array);
         for (let i = 0; i < animations.length; i++) {
             const arrayBars = document.getElementsByClassName('array-bar');
@@ -162,32 +178,15 @@ class SortingVisualizer extends React.Component {
         console.log("in heapsort");
     }
 
-    testfunc() {
-        console.log('in testfunc');
-    }
-
-    test() {
-        console.log("In test");
-        console.log(this.state.fireSize);
-        this.setState({ fireSize: 100 }, () => { this.testTwo() });
-        console.log("testOne " + this.state.fireSize);
-    }
-
-    testTwo() {
-        console.log("testTwo " + this.state.fireSize);
-        console.log(this.state.fireSize + 69);
-    }
-
     render() {
         return (
             <Container>
                 <Row noGutters={true}>
                     <Col sm={4} className="control-container">
-                        <h3>Control Panel</h3>
+                        <h3>Sorting Visualizer</h3>
                         <audio loop="loop" id="audio" src="fire.mp3" type="audio/mpeg" />
                         <p className="buttons"></p>
-                        <Button onClick={() => this.test()}>Try</Button>
-                        <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFireButtons()}>{this.state.sparkAFireButton}</Button>
+                        <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFireButtonState()}>{this.state.sparkAFireButton}</Button>
                         <p className="buttons"></p>
                         <Button className="algoButton" variant="success" onClick={() => this.previousAlgo()}>🢀</Button><Button onClick={() => this.startSort()} variant="primary">{this.state.sortingAlgos[this.state.sortingAlgoIdx]}</Button><Button className="algoButton" variant="success" onClick={() => this.nextAlgo()}>🢂</Button>
                     </Col>
