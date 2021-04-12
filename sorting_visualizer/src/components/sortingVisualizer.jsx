@@ -4,8 +4,9 @@ import { getBubbleSortAnimations } from '../SortingAlgorithms/BubbleSort.js';
 import { getMergeSortAnimations } from '../SortingAlgorithms/MergeSort.js';
 import { getSelectionSortAnimations } from '../SortingAlgorithms/SelectionSort.js';
 
-// Change this value for the speed of the animations.
-const ANIMATION_SPEED_MS = 50;
+import FirePlace from './FirePlace.jsx';
+import ControlPanel from './ControlPanel.jsx';
+
 
 // This is the main color of the array bars.
 const PRIMARY_COLOR = 'black';
@@ -13,6 +14,7 @@ const PRIMARY_COLOR = 'black';
 // This is the color of array bars that are being compared throughout the animations.
 const SECONDARY_COLOR = 'red';
 
+// needed for makeFlamesMoveHelper function
 var fireOn;
 
 class SortingVisualizer extends React.Component {
@@ -27,6 +29,8 @@ class SortingVisualizer extends React.Component {
             isFireAlive: false,
             constantFire: true,
             sortButton: true,
+            animationSpeed: 50,
+            sliderSpeed: 50,
         };
     }
 
@@ -40,13 +44,14 @@ class SortingVisualizer extends React.Component {
         this.setState({ array });
     }
 
-    clearArray() {
-        const array = [];
-        const arrayBars = document.getElementsByClassName("array-bar");
-
+    // handles state change for slider speed
+    changeSliderSpeed = (e) => {
+        this.setState({ sliderSpeed: e });
+        console.log(this.state.sliderSpeed);
     }
 
-    previousAlgo() {
+    // changes the value for the sorting button which determines algorithm to execute
+    previousAlgo = () => {
         let idx = this.state.sortingAlgoIdx;
 
         if (idx === 0) {
@@ -56,7 +61,7 @@ class SortingVisualizer extends React.Component {
         };
     }
 
-    nextAlgo() {
+    nextAlgo = () => {
         const idx = this.state.sortingAlgoIdx;
 
         if (idx === 2) {
@@ -66,6 +71,14 @@ class SortingVisualizer extends React.Component {
         };
     }
 
+
+    // handles state change for child component ControlPanel
+    handleChildStateIsFireAlive = (childState) => {
+        this.setState({ isFireAlive: childState.isFireAlive });
+        this.handleFireButtonState();
+    }
+
+    // handles actions required after fireButtonState state change. Is called from the helper function above
     handleFireButtonState() {
         if (!this.state.isFireAlive) {
             this.playAudio();
@@ -82,6 +95,7 @@ class SortingVisualizer extends React.Component {
         }
     }
 
+    // updates the name of the "Spark A Fire" button
     handleFireButton() {
 
         this.playAudio();
@@ -95,6 +109,8 @@ class SortingVisualizer extends React.Component {
         }
     }
 
+    // setTimeout's asynchronous nature is tricky. Flames stop when "Sort" button is called. 
+    // to do this I call the makeFlamesMove method with a helper which is using a timeout which can be stopped using clearTimeout() method
     makeFlamesMoveHelper() {
         fireOn = setTimeout(() => { this.makeFlamesMove() }, 200);
     }
@@ -109,16 +125,8 @@ class SortingVisualizer extends React.Component {
         this.setState({ sortButton: false });
     }
 
-    setTimeoutForKeepFireGoing() {
 
-        fireOn = setTimeout(() => { this.keepFireGoing() }, 5000);
-        this.keepFireGoing();
-    }
-
-    stopKeepFireGoingSetTimeout() {
-        clearTimeout(fireOn);
-    }
-
+    // toggle audio
     playAudio() {
         let x = document.getElementById("audio");
         x.play();
@@ -129,7 +137,9 @@ class SortingVisualizer extends React.Component {
         x.pause();
     }
 
-    startSort() {
+
+    // executes the intended sort method using DRY principles
+    startSort = () => {
         let algorithm = this.state.sortingAlgos[this.state.sortingAlgoIdx];
 
         this.pauseAudio();
@@ -146,29 +156,30 @@ class SortingVisualizer extends React.Component {
         if (algorithm === "Selection Sort") {
             this.selectionSort();
         }
-    //     setTimeout(() => )
     }
 
+    // animates virtual flames
     randomFireColour() {
         let randomIndex = (Math.floor((Math.random() * 5)));
         let colors = ["red", "orange", "orange", "orange", "yellow"];
         return colors[randomIndex];
     }
 
+    // Sorting algorithms
     bubbleSort() {
         const [animations,sortArray] = getBubbleSortAnimations(this.state.array);
         for (let i = 0; i < animations.length; i++) {
-            const isColorChange = animations[i][0] == "comparision1" || animations[i][0] == "comparision2";
+            const isColorChange = animations[i][0] == "comparisonOne" || animations[i][0] == "comparisonTwo";
             const arrayBars = document.getElementsByClassName('array-bar');
             if(isColorChange === true) {
-                const color = (animations[i][0] == "comparision1") ? SECONDARY_COLOR : PRIMARY_COLOR;
+                const color = (animations[i][0] == "comparisonOne") ? SECONDARY_COLOR : PRIMARY_COLOR;
                 const [comparision, barOneIndex, barTwoIndex] = animations[i];
                 const barOneStyle = arrayBars[barOneIndex].style;
                 const barTwoStyle = arrayBars[barTwoIndex].style;
                 setTimeout(() => {
                     barOneStyle.backgroundColor = color;
                     barTwoStyle.backgroundColor = color;
-                },i * ANIMATION_SPEED_MS);
+                },i * this.state.sliderSpeed);
             }
             else {
                 const [swap, barIndex, newHeight] = animations[i];
@@ -178,8 +189,14 @@ class SortingVisualizer extends React.Component {
                 const barStyle = arrayBars[barIndex].style;
                 setTimeout(() => {
                     barStyle.height = `${newHeight}px`;
-                },i * ANIMATION_SPEED_MS);  
+                },i * this.state.sliderSpeed);  
             }
+            setTimeout(() => {
+                if (i === animations.length - 1) {
+                        console.log('here');
+                        this.turnBarsGreen();
+                    }
+            }, i * this.state.sliderSpeed);
         }
     }
 
@@ -187,18 +204,18 @@ class SortingVisualizer extends React.Component {
         const [animations,sortArray] = getMergeSortAnimations(this.state.array);
         console.log(animations);
         for (let i = 0; i < animations.length; i++) {
-            const isColorChange = animations[i][0] == "comparision1" || animations[i][0] == "comparision2";
+            const isColorChange = animations[i][0] == "comparisonOne" || animations[i][0] == "comparisonTwo";
             const arrayBars = document.getElementsByClassName('array-bar');
             if(isColorChange === true) {
                 const [comparision, barOneIndex, barTwoIndex] = animations[i];
-                const color = (animations[i][0] == "comparision1") ? SECONDARY_COLOR : PRIMARY_COLOR;
+                const color = (animations[i][0] == "comparisonOne") ? SECONDARY_COLOR : PRIMARY_COLOR;
                 const barOneStyle = arrayBars[barOneIndex].style;
                 const barTwoStyle = arrayBars[barTwoIndex].style;
-                //If we don't multiply by the index then every animations[i] wait for exactly ANIMATION_SPEED_MS and immediately change into final state
+                //If we don't multiply by the index then every animations[i] wait for exactly this.state.sliderSpeed and immediately change into final state
                 setTimeout(() => {
                     barOneStyle.backgroundColor = color;
                     barTwoStyle.backgroundColor = color;
-                },i * ANIMATION_SPEED_MS);
+                },i * this.state.sliderSpeed);
                 
             }
             else {
@@ -206,33 +223,57 @@ class SortingVisualizer extends React.Component {
                     const [overwrite, barOneIdx, newHeight] = animations[i];
                     const barOneStyle = arrayBars[barOneIdx].style;
                     barOneStyle.height = `${newHeight}px`;
-                  },i * ANIMATION_SPEED_MS);
+                  },i * this.state.sliderSpeed);
             }
+            setTimeout(() => {
+                if (i === animations.length - 1) {
+                        console.log('here');
+                        this.turnBarsGreen();
+                    }
+            }, i * this.state.sliderSpeed);
         }
     }
 
     selectionSort() {
         const [animations,sortArray] = getSelectionSortAnimations(this.state.array);
         for (let i = 0; i < animations.length; i++) {
-            const isColorChange = (animations[i][0] === "comparision1") || (animations[i][0] === "comparision2");
+            const isColorChange = (animations[i][0] === "comparisonOne") || (animations[i][0] === "comparisonTwo");
             const arrayBars = document.getElementsByClassName('array-bar');
             if(isColorChange === true) {
-                const color = (animations[i][0] === "comparision1") ? SECONDARY_COLOR : PRIMARY_COLOR;
+                const color = (animations[i][0] === "comparisonOne") ? SECONDARY_COLOR : PRIMARY_COLOR;
                 const [temp, barOneIndex, barTwoIndex] = animations[i];
                 const barOneStyle = arrayBars[barOneIndex].style;
                 const barTwoStyle = arrayBars[barTwoIndex].style;
                 setTimeout(() => {
                     barOneStyle.backgroundColor = color;
                     barTwoStyle.backgroundColor = color;
-                },i * ANIMATION_SPEED_MS);
+                },i * this.state.sliderSpeed);
             }
             else {
                 const [temp, barIndex, newHeight] = animations[i];
                 const barStyle = arrayBars[barIndex].style;
                 setTimeout(() => {
                     barStyle.height = `${newHeight}px`;
-                },i * ANIMATION_SPEED_MS);  
+                },i * this.state.sliderSpeed);  
             }
+            setTimeout(() => {
+                if (i === animations.length - 1) {
+                        console.log('here');
+                        this.turnBarsGreen();
+                    }
+            }, i * this.state.sliderSpeed);
+        }
+    }
+
+    // Green sweep at the end to signal sorting completion
+    turnBarsGreen() {
+        const bars = document.getElementsByClassName("array-bar");
+        const arrayLength = bars.length;
+        for (let i = 0; i < arrayLength; i++) {
+            setTimeout(() => {
+                const barStyle = bars[i].style;
+                barStyle.backgroundColor = 'green';
+            }, i * this.state.sliderSpeed);
         }
     }
 
@@ -241,27 +282,26 @@ class SortingVisualizer extends React.Component {
             <Container>
                 <Row noGutters={true}>
                     <Col sm={4} className="control-container">
-                        <h3>Sorting Visualizer</h3>
-                        <audio loop="loop" id="audio" src="fire.mp3" type="audio/mpeg" />
-                        <p className="buttons"></p>
-                        <Button disabled={this.state.fireSize >= 30} variant="danger" onClick={() => this.handleFireButtonState()}>{this.state.sparkAFireButton}</Button>
-                        <p className="buttons"></p>
-                        <Button disabled={!this.state.sortButton} className="algoButton" variant="success" onClick={() => this.previousAlgo()}>🢀</Button><Button disabled={!this.state.sortButton} onClick={() => this.startSort()} variant="primary">{this.state.sortingAlgos[this.state.sortingAlgoIdx]}</Button><Button disabled={!this.state.sortButton} className="algoButton" variant="success" onClick={() => this.nextAlgo()}>🢂</Button>
+                        <ControlPanel
+                            fireSize={this.state.fireSize}
+                            sparkAFireButton={this.state.sparkAFireButton}
+                            sortButton={this.state.sortButton}
+                            sortingAlgos={this.state.sortingAlgos}
+                            sortingAlgoIdx={this.state.sortingAlgoIdx}
+                            handleSortingAlgoIdx={(childState) => this.handleChildStateSortingAlgoIdx(childState)}
+                            handleFireButtonState={(childState) => this.handleChildStateIsFireAlive(childState)}
+                            nextAlgo={this.nextAlgo}
+                            previousAlgo={this.previousAlgo}
+                            startSort={this.startSort}
+                            changeSliderSpeed={this.changeSliderSpeed}
+                            sliderSpeed={this.state.sliderSpeed}
+                        />
                     </Col>
                     <Col>
-                        <div>
-                            <div sm={8} className="array-container">
-                                <div className="flames">
-                                    {this.state.array.map((value, idx) => (
-                                    <div
-                                        className="array-bar"
-                                        key={idx}
-                                        style={{height: `${value}px`, backgroundColor: this.randomFireColour()}}>
-                                    </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+                        <FirePlace 
+                            array={this.state.array}
+                            randomFireColour={this.randomFireColour}
+                        />
                     </Col>
                 </Row>
             </Container>

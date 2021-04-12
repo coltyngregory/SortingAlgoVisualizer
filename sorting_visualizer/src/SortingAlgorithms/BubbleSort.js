@@ -4,7 +4,6 @@ export function getBubbleSortAnimations(array) {
     let auxillaryArray = array.slice();
     bubbleSort(auxillaryArray, animations);
     const javaScriptSortedArray = array.slice().sort((a, b) => a - b);
-    console.log("sort works correctly? ",arraysAreEqual(javaScriptSortedArray, auxillaryArray));
     array = auxillaryArray;
     return [animations, array];
 }
@@ -15,8 +14,8 @@ function bubbleSort(auxillaryArray, animations) {
     while(iters > 0) {
         let swapped = false;
         for(let i = 0; i < iters; ++i) {
-            animations.push(["comparision1", i, i + 1]);
-            animations.push(["comparision2", i, i + 1]);
+            animations.push(["comparisonOne", i, i + 1]);
+            animations.push(["comparisonTwo", i, i + 1]);
             if(auxillaryArray[i] > auxillaryArray[i + 1]) {
                 swapped = true;
                 animations.push(["swap", i, auxillaryArray[i + 1]]);

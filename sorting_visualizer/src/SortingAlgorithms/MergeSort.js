@@ -23,9 +23,9 @@ function merge(auxillaryArray, startIndex, middleIndex, endIndex, animations) {
     let j = middleIndex + 1;
     while(i <= middleIndex && j <= endIndex) {
         //Comparing value at ith and jth index so push them to change their color
-        animations.push(["comparision1", i, j]);
+        animations.push(["comparisonOne", i, j]);
         //By changing color we imply that we are comparing those two values and then again we should revert back to their original color so push them again
-        animations.push(["comparision2", i, j]);
+        animations.push(["comparisonTwo", i, j]);
         if(auxillaryArray[i] <= auxillaryArray[j]) {
             sortArray.push(auxillaryArray[i++]);
         }
@@ -34,19 +34,19 @@ function merge(auxillaryArray, startIndex, middleIndex, endIndex, animations) {
         }
     }
     while(i <= middleIndex) {
-        animations.push(["comparision1", i, i]);
-        animations.push(["comparision2", i, i]);
+        animations.push(["comparisonOne", i, i]);
+        animations.push(["comparisonTwo", i, i]);
         sortArray.push(auxillaryArray[i++]);
     }
     while(j <= endIndex) {
-        animations.push(["comparision1", j, j]);
-        animations.push(["comparision2", j, j]);
+        animations.push(["comparisonOne", j, j]);
+        animations.push(["comparisonTwo", j, j]);
         sortArray.push(auxillaryArray[j++]);
     }
     for (let i = startIndex; i <= endIndex; i++) {
-        animations.push(["comparision1", i, i - startIndex]);
+        animations.push(["comparisonOne", i, i - startIndex]);
         animations.push(["overwrite", i, sortArray[i - startIndex]]);
-        animations.push(["comparision2", i, i - startIndex]);
+        animations.push(["comparisonTwo", i, i - startIndex]);
         auxillaryArray[i] = sortArray[i - startIndex];
     }
 }
